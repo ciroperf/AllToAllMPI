@@ -2,7 +2,7 @@ CC = mpic++
 
   CFLAGS  = -g -Wall
 
-  TARGET = bcast
+  TARGET = test
 
   all: $(TARGET)
 

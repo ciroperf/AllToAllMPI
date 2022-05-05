@@ -1,37 +1,7 @@
-/**
- * @author RookieHPC
- * @brief Original source code at https://www.rookiehpc.com/mpi/docs/mpi_alltoall.php
- **/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
  
-/**
- * @brief Illustrates how to use an all to all.
- * @details This application is meant to be run with 3 MPI processes. Every MPI
- * process begins with a buffer containing 3 integers, one for each process
- * including themselves. They also have a buffer in which receive the integer
- * that has been sent by each other process for them. It can be visualised as
- * follows:
- *
- * +-----------------------+ +-----------------------+ +-----------------------+
- * |       Process 0       | |       Process 1       | |       Process 2       |
- * +-------+-------+-------+ +-------+-------+-------+ +-------+-------+-------+
- * | Value | Value | Value | | Value | Value | Value | | Value | Value | Value |
- * |   0   |  100  |  200  | |  300  |  400  |  500  | |  600  |  700  |  800  |
- * +-------+-------+-------+ +-------+-------+-------+ +-------+-------+-------+
- *     |       |       |_________|_______|_______|_________|___    |       |
- *     |       |    _____________|_______|_______|_________|   |   |       |
- *     |       |___|_____________|_      |      _|_____________|___|       |
- *     |      _____|_____________| |     |     | |_____________|_____      |
- *     |     |     |               |     |     |               |     |     |
- *  +-----+-----+-----+         +-----+-----+-----+         +-----+-----+-----+
- *  |  0  | 300 | 600 |         | 100 | 400 | 700 |         | 200 | 500 | 800 |
- *  +-----+-----+-----+         +-----+-----+-----+         +-----+-----+-----+
- *  |    Process 0    |         |    Process 1    |         |    Process 2    |
- *  +-----------------+         +-----------------+         +-----------------+
- **/
 int main(int argc, char* argv[])
 {
     MPI_Init(&argc, &argv);
