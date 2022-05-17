@@ -1,8 +1,3 @@
-/*
-This simple program, generates required size of data and does the broadcast in an iteration.
-To run: mpirun -n nprocs a.out data_size iterations delay_between_iterations(us)
-Note: data_size will be in powers of 2. you just need to put power. for example if data_size=5, it will be 2^5 bytes. 
-*/
 #include <stdio.h>
 #include <iostream>
 #include <malloc.h>
@@ -53,16 +48,16 @@ int main(int argc, char **argv)
   //printf("n is %d\n", n);
 
   double alltoall_time[max_iter];
-  arr = new int[n];
+  arr = (int*)malloc(n*sizeof(int));
 
   // Generate Data
-  printf("arr values of process %d\n", myid);
+  //printf("arr values of process %d\n", myid);
   for (i = 0; i < n; i++)
   { // generate random int data between 0 and 100
     arr[i] = myid * 300 + i * 100;
-    printf("%d ", arr[i]);
+    //printf("%d ", arr[i]);
   }
-  printf("\n");
+  //printf("\n");
   
   //iteration
   iter = 0;
@@ -81,7 +76,7 @@ int main(int argc, char **argv)
       alltoall_time[iter] = ((t2_b - t1_b) * 1000);
     }
 
-    printf("Values collected on process %d: %d, %d, %d.\n", myid, buffer_recv[0], buffer_recv[1], buffer_recv[2]);
+    //printf("Values collected on process %d: %d, %d, %d.\n", myid, buffer_recv[0], buffer_recv[1], buffer_recv[2]);
     
     usleep(sleep_time);
     iter++;
