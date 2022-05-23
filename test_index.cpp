@@ -16,7 +16,6 @@ int main(int argc, char **argv)
 {
   int i, procs, myid, *arr, n, err, max_iter ,iter = 0;
   long n_bytes, sleep_time;
-  int pow_2;
   double t1_b, t2_b;
   // initialize MPI_Init
   err = MPI_Init(&argc, &argv);
@@ -39,12 +38,11 @@ int main(int argc, char **argv)
     }
   }
 
-  pow_2 = atoi(argv[1]);      //size of the data to broadcast: n_bytes= 2^pow_2
+  n = atoi(argv[1]);      //number of elements for each process
   max_iter = atoi(argv[2]);   //number of iterations to repeat the procedure
   sleep_time = atoi(argv[3]); //Wait time between iterations (microseconds)
 
-  n_bytes = pow(2, pow_2);
-  n = n_bytes / sizeof(int);
+  n_bytes = n * sizeof(int);
   //printf("n is %d\n", n);
 
   double alltoall_time[max_iter];
@@ -54,14 +52,15 @@ int main(int argc, char **argv)
   //printf("arr values of process %d\n", myid);
   for (i = 0; i < n; i++)
   { // generate random int data between 0 and 100
-    arr[i] = myid * 300 + i * 100;
+    arr[i] = myid * 100 * n + i * 100;
     //printf("%d ", arr[i]);
   }
   //printf("\n");
   
   //iteration
   iter = 0;
-  int buffer_recv[n];
+  int *buffer_recv;
+  buffer_recv = (int*)malloc(n*sizeof(int));
   while (iter < max_iter)
   {
     //-------------------------------------------------------------------------AllToAll
@@ -76,15 +75,21 @@ int main(int argc, char **argv)
       alltoall_time[iter] = ((t2_b - t1_b) * 1000);
     }
 
+    /*
+    printf("Values collected on process %d: ", myid);
+    for(int i=0;i<n;i++){
+      printf("%d ", buffer_recv[i]);
+    }
+    printf("\n");
     //printf("Values collected on process %d: %d, %d, %d.\n", myid, buffer_recv[0], buffer_recv[1], buffer_recv[2]);
-    
+    */
     usleep(sleep_time);
     iter++;
   } // end iteration
 
   if (myid == 0)
   {
-    cout << "\nThe size of the data to broadcast: " << n_bytes << " Bytes";
+    cout << "\nThe size of the data sent: " << n_bytes << " Bytes";
     cout << "\nMean of communication times: " << Mean(alltoall_time, max_iter) << "ms";
     cout << "\nMedian of communication times: " << Median(alltoall_time, max_iter) << "ms\n";
     //Print_times(bcast_time, max_iter);
@@ -113,10 +118,6 @@ double Median(double a[], int n)
   return (a[(n - 1) / 2] + a[n / 2]) / 2.0;
 }
 
-// void Print_times(double a[], int n)
-// {
-//   cout << "\n------------------------------------";
-//   for (int t = 0; t < n; t++)
-//     cout << "\n " << a[t];
-//    cout << "\n ";
-// }
+void allToAll_index(int* inMsg, int procs, int *idProcs, int *outMsg, int blklen, int r){
+
+}

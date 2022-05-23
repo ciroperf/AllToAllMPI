@@ -2,7 +2,7 @@ CC = mpic++
 
   CFLAGS  = -g -Wall
 
-  TARGET = test
+  TARGET = test_index
 
   all: $(TARGET)
 
