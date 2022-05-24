@@ -4,12 +4,17 @@
 #include <time.h>
 #include <mpi.h>
 #include <unistd.h>
+#include <math.h>
 #include <bits/stdc++.h>
 
 using namespace std;
 
 double  Mean(double[], int);
 double  Median(double[], int);
+void allToAll_index(int* , int , int *, int *, int , int , int);
+double logWithBase(double base, double x);
+int getrank(int id, int procs, int *id_procs);
+void copy(int* A, int* B, int len);
 //void    Print_times(double[], int);
 
 int main(int argc, char **argv)
@@ -27,6 +32,19 @@ int main(int argc, char **argv)
 
   MPI_Comm_size(MPI_COMM_WORLD, &procs);
   MPI_Comm_rank(MPI_COMM_WORLD, &myid);
+  
+  int *id_procs;
+  id_procs = (int*)malloc(procs*sizeof(int));
+  MPI_Allgather(&myid, 1, MPI_INT, id_procs, 1, MPI_INT, MPI_COMM_WORLD);
+  MPI_Barrier(MPI_COMM_WORLD);
+  if(myid==0){
+    for (i = 0; i < procs; i++){ 
+        printf("%d ", id_procs[i]);
+    }
+    printf("\n");
+  }
+  
+
 
   if (myid == 0)
   {
@@ -61,12 +79,15 @@ int main(int argc, char **argv)
   iter = 0;
   int *buffer_recv;
   buffer_recv = (int*)malloc(n*sizeof(int));
+  int *inMsg;
+  inMsg = (int*)malloc(n*sizeof(int));
   while (iter < max_iter)
   {
     //-------------------------------------------------------------------------AllToAll
     MPI_Barrier(MPI_COMM_WORLD);
     t1_b = MPI_Wtime();
-    MPI_Alltoall(arr, 1, MPI_INT, buffer_recv, 1, MPI_INT, MPI_COMM_WORLD);
+    //MPI_Alltoall(arr, 1, MPI_INT, buffer_recv, 1, MPI_INT, MPI_COMM_WORLD);
+    allToAll_index(inMsg, procs, id_procs, arr, 1, 3, myid);
     //MPI_Bcast(arr, n, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
     t2_b = MPI_Wtime();
@@ -100,8 +121,7 @@ int main(int argc, char **argv)
   return 0;
 } // end main
 
-double Mean(double a[], int n)
-{
+double Mean(double a[], int n){
   double sum = 0.0;
   for (int i = 0; i < n; i++)
     sum += a[i];
@@ -109,8 +129,7 @@ double Mean(double a[], int n)
   return (sum / (double)n);
 }
 
-double Median(double a[], int n)
-{
+double Median(double a[], int n){
   sort(a, a + n);
   if (n % 2 != 0)
     return a[n / 2];
@@ -118,6 +137,56 @@ double Median(double a[], int n)
   return (a[(n - 1) / 2] + a[n / 2]) / 2.0;
 }
 
-void allToAll_index(int* inMsg, int procs, int *idProcs, int *outMsg, int blklen, int r){
+void allToAll_index(int* inMsg, int procs, int *id_procs, int *outMsg, int blklen, int r, int myid){
+    int h, dest_rank, src_rank;
+    int w = (int) floor(logWithBase(r,procs) + 0.5);
+    int myrank = getrank(myid, procs, id_procs);
+    printf(" myrank: %d, myid: %d \n", myrank, myid);
+    int* tmp;
+    tmp = (int*) malloc(procs*blklen*sizeof(int));
+    copy(outMsg, &tmp[(procs-myrank) * blklen], myrank*blklen);
+    copy(&outMsg[myrank*blklen], tmp, (procs-myrank)*blklen);
+    /*printf("Values collected on process %d: ", myrank);
+    for(int i=0;i<procs;i++){
+      printf("%d ", tmp[i]);
+    }
+    printf("\n");
+    */
+    int dist = 1;
+    for(int i=0;i<w;i++){
+        if(i==w-1)
+            h = (int) floor(procs/dist);
+        else
+            h = r;
 
+        for(j=1;j<h;j++){
+            dest_rank = (myrank+j*dist) % procs;
+            scr_rank = (myrank-j*dist) % procs;
+            //pack
+            //send e receive
+            //unpack
+        }
+        dist = dist * r;
+    }
+    for(int i=0;i<procs;i++)
+        copy(tmp[&((myrank-i) % n) * blklen], &inMsg[i * blklen], blklen);
+}
+
+double logWithBase(double base, double x) {
+    return log(x) / log(base);
+}
+
+int getrank(int id, int procs, int *id_procs){
+    for(int i=0;i<procs;i++){
+        if(id_procs[i]==id)
+            return i;
+    }
+    return -1;
+}
+
+void copy(int* A, int* B, int len){
+    //B = (int*) malloc(len);
+    for(int i=0;i<len;i++){
+        B[i] = A[i];
+    }
 }
