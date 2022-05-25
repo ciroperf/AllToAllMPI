@@ -18,11 +18,10 @@ int getrank(int id, int procs, int *id_procs);
 void copy(int* A, int* B, int len);
 void pack(int* A, int* B, int blklen, int procs, int r, int i, int j, int nblocks);
 int mod(int a, int b);
-//void    Print_times(double[], int);
 
 int main(int argc, char **argv)
 {
-  int i, procs, myid, *arr, n, err, max_iter ,iter = 0;
+  int i, procs, myid, *outMsg, n, err, max_iter ,iter = 0;
   long n_bytes, sleep_time;
   double t1_b, t2_b;
   // initialize MPI_Init
@@ -67,60 +66,50 @@ int main(int argc, char **argv)
   //printf("n is %d\n", n);
 
   double alltoall_time[max_iter];
-  arr = (int*)malloc(n*sizeof(int));
+  outMsg = (int*)malloc(n*sizeof(int));
 
   // Generate Data
-  //printf("arr values of process %d\n", myid);
   for (i = 0; i < n; i++)
-  { // generate random int data between 0 and 100
-    arr[i] = myid * 100 * n + i * 100;
-    //printf("%d ", arr[i]);
+  { // generate int data between 0 and 100
+    outMsg[i] = myid * 100 * n + i * 100;
   }
-  //printf("\n");
   
-  //iteration
   iter = 0;
   int *buffer_recv;
   buffer_recv = (int*)malloc(n*sizeof(int));
   int *inMsg;
   inMsg = (int*)malloc(n*n*sizeof(int));
-  while (iter < max_iter)
-  {
+  while (iter < max_iter) {
     //-------------------------------------------------------------------------AllToAll
     MPI_Barrier(MPI_COMM_WORLD);
     t1_b = MPI_Wtime();
-    //MPI_Alltoall(arr, 1, MPI_INT, buffer_recv, 1, MPI_INT, MPI_COMM_WORLD);
-    //allToAll_index(inMsg, procs, id_procs, arr, 1, 3, myid);
-    allToAll_concat(inMsg, procs, id_procs, arr, 5, myid);
-    //MPI_Bcast(arr, n, MPI_INT, 0, MPI_COMM_WORLD);
+    allToAll_concat(inMsg, procs, id_procs, outMsg, n, myid);
     MPI_Barrier(MPI_COMM_WORLD);
     t2_b = MPI_Wtime();
-    if (myid == 0)
-    {
+    if (myid == 0) {
       alltoall_time[iter] = ((t2_b - t1_b) * 1000);
     }
 
-    
     printf("Values collected on process %d: ", myid);
-    for(int i=0;i<n*n;i++){
+    for(int i=0;i<n*n;i++) {
       printf("%d ", inMsg[i]);
     }
     printf("\n");
-    //printf("Values collected on process %d: %d, %d, %d.\n", myid, buffer_recv[0], buffer_recv[1], buffer_recv[2]);
     
     usleep(sleep_time);
     iter++;
-  } // end iteration
+  }
 
-  if (myid == 0)
-  {
+  if (myid == 0) {
     cout << "\nThe size of the data sent: " << n_bytes << " Bytes";
     cout << "\nMean of communication times: " << Mean(alltoall_time, max_iter) << "ms";
     cout << "\nMedian of communication times: " << Median(alltoall_time, max_iter) << "ms\n";
-    //Print_times(bcast_time, max_iter);
   } 
 
-  free(arr);
+  free(id_procs);
+  free(buffer_recv);
+  free(inMsg);
+  free(outMsg);
   MPI_Finalize();
   return 0;
 } // end main
@@ -214,7 +203,7 @@ void allToAll_concat(int* inMsg, int procs, int *id_procs, int *outMsg, int len,
     dest_rank = mod(myrank - nblk, procs);
     src_rank = mod(myrank + nblk, procs);
     //printf("dest_rank: %d, idprocs[dest_rank] = %d - src_rank: %d, idprocs[src_rank] = %d\n",dest_rank, id_procs[dest_rank], src_rank, id_procs[src_rank]);
-    MPI_Sendrecv(tmp, current_len, MPI_INT, id_procs[dest_rank], 1, &tmp[current_len], current_len, MPI_INT, id_procs[src_rank], 1, MPI_COMM_WORLD, &status);
+    MPI_Sendrecv(tmp, 1, MPI_INT, id_procs[dest_rank], 1, &tmp[current_len], 1, MPI_INT, id_procs[src_rank], 1, MPI_COMM_WORLD, &status);
     //printf("MPI_Sendrecv(tmp, %d, MPI_INT, %d, 1, &tmp[current_len], %d, MPI_INT, %d, 1, MPI_COMM_WORLD, &status);\n", current_len, id_procs[dest_rank], current_len, id_procs[src_rank]);
     //MPI_Wait(&status);
     nblk = nblk * 2;
