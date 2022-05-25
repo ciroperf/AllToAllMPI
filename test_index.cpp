@@ -203,8 +203,8 @@ void allToAll_concat(int* inMsg, int procs, int *id_procs, int *outMsg, int len,
     dest_rank = mod(myrank - nblk, procs);
     src_rank = mod(myrank + nblk, procs);
     //printf("dest_rank: %d, idprocs[dest_rank] = %d - src_rank: %d, idprocs[src_rank] = %d\n",dest_rank, id_procs[dest_rank], src_rank, id_procs[src_rank]);
-    MPI_Sendrecv(tmp, 1, MPI_INT, id_procs[dest_rank], 1, &tmp[current_len], 1, MPI_INT, id_procs[src_rank], 1, MPI_COMM_WORLD, &status);
-    //printf("MPI_Sendrecv(tmp, %d, MPI_INT, %d, 1, &tmp[current_len], %d, MPI_INT, %d, 1, MPI_COMM_WORLD, &status);\n", current_len, id_procs[dest_rank], current_len, id_procs[src_rank]);
+    MPI_Sendrecv(tmp, current_len, MPI_INT, id_procs[dest_rank], 1, &tmp[current_len], current_len, MPI_INT, id_procs[src_rank], 1, MPI_COMM_WORLD, &status);
+    //printf("1. MPI_Sendrecv(tmp, %d, MPI_INT, %d, 1, &tmp[current_len], %d, MPI_INT, %d, 1, MPI_COMM_WORLD, &status);\n", current_len, id_procs[dest_rank], current_len, id_procs[src_rank]);
     //MPI_Wait(&status);
     nblk = nblk * 2;
     current_len = current_len * 2;
@@ -212,6 +212,7 @@ void allToAll_concat(int* inMsg, int procs, int *id_procs, int *outMsg, int len,
   current_len = len * (procs - nblk);
   dest_rank = mod(myrank - nblk, procs);
   src_rank = mod(myrank + nblk, procs);
+  printf("myrank: %d MPI_Sendrecv(tmp, %d, MPI_INT, %d, 1, &tmp[current_len], %d, MPI_INT, %d, 1, MPI_COMM_WORLD, &status);\n", myrank, current_len, id_procs[dest_rank], current_len, id_procs[src_rank]);
   MPI_Sendrecv(tmp, current_len, MPI_INT, id_procs[dest_rank], 1, &tmp[current_len], current_len, MPI_INT, id_procs[src_rank], 1, MPI_COMM_WORLD, &status);
   //MPI_Wait(&status);
   //printf("Sono il processo %d, e ho finito\n",myrank);
