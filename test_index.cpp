@@ -12,9 +12,12 @@ using namespace std;
 double  Mean(double[], int);
 double  Median(double[], int);
 void allToAll_index(int* , int , int *, int *, int , int , int);
+void allToAll_concat(int* inMsg, int procs, int *id_procs, int *outMsg, int len, int myid);
 double logWithBase(double base, double x);
 int getrank(int id, int procs, int *id_procs);
 void copy(int* A, int* B, int len);
+void pack(int* A, int* B, int blklen, int procs, int r, int i, int j, int nblocks);
+int mod(int a, int b);
 //void    Print_times(double[], int);
 
 int main(int argc, char **argv)
@@ -80,14 +83,15 @@ int main(int argc, char **argv)
   int *buffer_recv;
   buffer_recv = (int*)malloc(n*sizeof(int));
   int *inMsg;
-  inMsg = (int*)malloc(n*sizeof(int));
+  inMsg = (int*)malloc(n*n*sizeof(int));
   while (iter < max_iter)
   {
     //-------------------------------------------------------------------------AllToAll
     MPI_Barrier(MPI_COMM_WORLD);
     t1_b = MPI_Wtime();
     //MPI_Alltoall(arr, 1, MPI_INT, buffer_recv, 1, MPI_INT, MPI_COMM_WORLD);
-    allToAll_index(inMsg, procs, id_procs, arr, 1, 3, myid);
+    //allToAll_index(inMsg, procs, id_procs, arr, 1, 3, myid);
+    allToAll_concat(inMsg, procs, id_procs, arr, 5, myid);
     //MPI_Bcast(arr, n, MPI_INT, 0, MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
     t2_b = MPI_Wtime();
@@ -96,14 +100,14 @@ int main(int argc, char **argv)
       alltoall_time[iter] = ((t2_b - t1_b) * 1000);
     }
 
-    /*
+    
     printf("Values collected on process %d: ", myid);
-    for(int i=0;i<n;i++){
-      printf("%d ", buffer_recv[i]);
+    for(int i=0;i<n*n;i++){
+      printf("%d ", inMsg[i]);
     }
     printf("\n");
     //printf("Values collected on process %d: %d, %d, %d.\n", myid, buffer_recv[0], buffer_recv[1], buffer_recv[2]);
-    */
+    
     usleep(sleep_time);
     iter++;
   } // end iteration
@@ -159,9 +163,9 @@ void allToAll_index(int* inMsg, int procs, int *id_procs, int *outMsg, int blkle
         else
             h = r;
 
-        for(j=1;j<h;j++){
+        for(int j=1;j<h;j++){
             dest_rank = (myrank+j*dist) % procs;
-            scr_rank = (myrank-j*dist) % procs;
+            src_rank = (myrank-j*dist) % procs;
             //pack
             //send e receive
             //unpack
@@ -169,7 +173,7 @@ void allToAll_index(int* inMsg, int procs, int *id_procs, int *outMsg, int blkle
         dist = dist * r;
     }
     for(int i=0;i<procs;i++)
-        copy(tmp[&((myrank-i) % n) * blklen], &inMsg[i * blklen], blklen);
+        copy(&tmp[((myrank-i) % procs) * blklen], &inMsg[i * blklen], blklen);
 }
 
 double logWithBase(double base, double x) {
@@ -189,4 +193,52 @@ void copy(int* A, int* B, int len){
     for(int i=0;i<len;i++){
         B[i] = A[i];
     }
+}
+
+void pack(int* A, int* B, int blklen, int procs, int r, int i, int j, int nblocks){
+  
+}
+
+void allToAll_concat(int* inMsg, int procs, int *id_procs, int *outMsg, int len, int myid){
+  MPI_Status status;
+  int dest_rank, src_rank;
+  int d = (int) floor(logWithBase(2,procs) + 0.5);
+  int myrank = getrank(myid, procs, id_procs);
+  int* tmp;
+  tmp = (int*) malloc(procs*procs*sizeof(int));
+  copy(outMsg, tmp, len);
+  //printf("Sono il processo %d, e ho copiato\n",myrank);
+  int nblk = 1;
+  int current_len = len;
+  for(int r=0; r<d; r++){
+    dest_rank = mod(myrank - nblk, procs);
+    src_rank = mod(myrank + nblk, procs);
+    //printf("dest_rank: %d, idprocs[dest_rank] = %d - src_rank: %d, idprocs[src_rank] = %d\n",dest_rank, id_procs[dest_rank], src_rank, id_procs[src_rank]);
+    MPI_Sendrecv(tmp, current_len, MPI_INT, id_procs[dest_rank], 1, &tmp[current_len], current_len, MPI_INT, id_procs[src_rank], 1, MPI_COMM_WORLD, &status);
+    //printf("MPI_Sendrecv(tmp, %d, MPI_INT, %d, 1, &tmp[current_len], %d, MPI_INT, %d, 1, MPI_COMM_WORLD, &status);\n", current_len, id_procs[dest_rank], current_len, id_procs[src_rank]);
+    //MPI_Wait(&status);
+    nblk = nblk * 2;
+    current_len = current_len * 2;
+  }
+  current_len = len * (procs - nblk);
+  dest_rank = mod(myrank - nblk, procs);
+  src_rank = mod(myrank + nblk, procs);
+  MPI_Sendrecv(tmp, current_len, MPI_INT, id_procs[dest_rank], 1, &tmp[current_len], current_len, MPI_INT, id_procs[src_rank], 1, MPI_COMM_WORLD, &status);
+  //MPI_Wait(&status);
+  //printf("Sono il processo %d, e ho finito\n",myrank);
+  copy(tmp, &inMsg[len * myrank], len * (procs - myrank));
+  copy(&tmp[len * (procs - myrank)], inMsg, len * myrank);
+  /*for(int i=0;i<n;i++){
+      printf("%d ", buffer_recv[i]);
+  }
+  printf("\n");*/
+}
+
+int mod(int a, int b){
+   if(b < 0) //you can check for b == 0 separately and do what you want
+     return -mod(-a, -b);
+   int ret = a % b;
+   if(ret < 0)
+     ret+=b;
+   return ret;
 }
