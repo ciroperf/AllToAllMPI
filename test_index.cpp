@@ -78,12 +78,12 @@ int main(int argc, char **argv)
   int *buffer_recv;
   buffer_recv = (int*)malloc(n*sizeof(int));
   int *inMsg;
-  inMsg = (int*)malloc(n*n*sizeof(int));
+  
   while (iter < max_iter) {
     //-------------------------------------------------------------------------AllToAll
     MPI_Barrier(MPI_COMM_WORLD);
     t1_b = MPI_Wtime();
-    allToAll_concat(inMsg, procs, id_procs, outMsg, n, myid);
+    allToAll_concat(inMsg, procs, id_procs, outMsg, n*sizeof(int), myid);
     MPI_Barrier(MPI_COMM_WORLD);
     t2_b = MPI_Wtime();
     if (myid == 0) {
@@ -179,7 +179,7 @@ int getrank(int id, int procs, int *id_procs){
 
 void copy(int* A, int* B, int len){
     //B = (int*) malloc(len);
-    for(int i=0;i<len;i++){
+    for(int i=0;i<len/sizeof(int);i++){
         B[i] = A[i];
     }
 }
@@ -191,10 +191,11 @@ void pack(int* A, int* B, int blklen, int procs, int r, int i, int j, int nblock
 void allToAll_concat(int* inMsg, int procs, int *id_procs, int *outMsg, int len, int myid){
   MPI_Status status;
   int dest_rank, src_rank;
+  inMsg = (int*)malloc(procs*len*sizeof(int));
   int d = (int) floor(logWithBase(2,procs) + 0.5);
   int myrank = getrank(myid, procs, id_procs);
   int* tmp;
-  tmp = (int*) malloc(procs*procs*sizeof(int));
+  tmp = (int*) malloc(procs*len*sizeof(int));
   copy(outMsg, tmp, len);
   //printf("Sono il processo %d, e ho copiato\n",myrank);
   int nblk = 1;
