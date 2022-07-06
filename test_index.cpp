@@ -199,7 +199,7 @@ void allToAll_concat(int* inMsg, int procs, int *id_procs, int *outMsg, int len,
   //printf("Sono il processo %d, e ho copiato\n",myrank);
   int nblk = 1;
   int current_len = len;
-  for(int r=0; r<d; r++){
+  for(int r=0; r<d; r++) {
     dest_rank = mod(myrank - nblk, procs);
     src_rank = mod(myrank + nblk, procs);
     //printf("dest_rank: %d, idprocs[dest_rank] = %d - src_rank: %d, idprocs[src_rank] = %d\n",dest_rank, id_procs[dest_rank], src_rank, id_procs[src_rank]);
@@ -212,6 +212,7 @@ void allToAll_concat(int* inMsg, int procs, int *id_procs, int *outMsg, int len,
   current_len = len * (procs - nblk);
   dest_rank = mod(myrank - nblk, procs);
   src_rank = mod(myrank + nblk, procs);
+  
   MPI_Sendrecv(tmp, current_len, MPI_INT, id_procs[dest_rank], 1, &tmp[current_len], current_len, MPI_INT, id_procs[src_rank], 1, MPI_COMM_WORLD, &status);
   //MPI_Wait(&status);
   //printf("Sono il processo %d, e ho finito\n",myrank);
@@ -224,7 +225,7 @@ void allToAll_concat(int* inMsg, int procs, int *id_procs, int *outMsg, int len,
 }
 
 int mod(int a, int b){
-   if(b < 0) //you can check for b == 0 separately and do what you want
+   if(b < 0)
      return -mod(-a, -b);
    int ret = a % b;
    if(ret < 0)
