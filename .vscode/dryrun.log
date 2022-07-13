@@ -1,5 +1,5 @@
 make --dry-run --keep-going --print-directory
 make: Entering directory '/home/ciro/Desktop/HPC/AllToAllMPI'
-mpic++ -g -Wall -o a.out alltoall_datatype.cpp 
+mpic++ -g -Wall -o a.out alltoall_baseline.cpp 
 make: Leaving directory '/home/ciro/Desktop/HPC/AllToAllMPI'
  

@@ -2,8 +2,7 @@ CC = mpic++
 
   CFLAGS  = -g -Wall
 
-  TARGET = alltoall_datatype
-
+  TARGET = alltoall_baseline
   all: $(TARGET)
 
   $(TARGET): $(TARGET).cpp

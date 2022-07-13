@@ -1,53 +1,30 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # GNU Make 4.3
- 
 # Built for x86_64-pc-linux-gnu
- 
 # Copyright (C) 1988-2020 Free Software Foundation, Inc.
- 
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
- 
 # This is free software: you are free to change and redistribute it.
- 
 # There is NO WARRANTY, to the extent permitted by law.
  
 
- 
-# Make data base, printed on Wed Jul 13 03:43:54 2022
- 
+# Make data base, printed on Wed Jul 13 06:51:39 2022
 
 # Variables
- 
 
- 
 # environment
- 
 GDK_BACKEND = x11
- 
 # environment
- 
 LC_ALL = C
- 
 # environment
- 
 GNOME_SHELL_SESSION_MODE = ubuntu
- 
 # environment
- 
 SSH_AGENT_LAUNCHER = gnome-keyring
- 
 # environment
- 
 VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-deaf1b5e-8c95-4f8e-9629-2fe6dd0ab54b.sock
- 
 # environment
- 
 VSCODE_CWD = /home/ciro
- 
 # default
- 
 MAKE_COMMAND := make
- 
 # environment
 QT_ACCESSIBILITY = 1
 # automatic
@@ -229,7 +206,7 @@ IM_CONFIG_PHASE = 1
 # default
 SUFFIXES := 
 # makefile (from 'Makefile', line 5)
-TARGET = alltoall_datatype
+TARGET = alltoall_baseline
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
 # makefile (from 'Makefile', line 1)
@@ -257,51 +234,51 @@ GDMSESSION = ubuntu
 
 # Files
 
-# Not a target:
-Makefile:
-#  Implicit rule search has been done.
-#  Last modified 2022-07-13 03:43:53.499142027
-#  File has been updated.
-#  Successfully updated.
-
-alltoall_datatype: alltoall_datatype.cpp
+alltoall_baseline: alltoall_baseline.cpp
 #  Implicit rule search has not been done.
 #  Implicit/static pattern stem: ''
 #  File does not exist.
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # automatic
-# @ := alltoall_datatype
+# @ := alltoall_baseline
 # automatic
 # * := 
 # automatic
-# < := alltoall_datatype.cpp
+# < := alltoall_baseline.cpp
 # automatic
-# + := alltoall_datatype.cpp
+# + := alltoall_baseline.cpp
 # automatic
 # % := 
 # automatic
-# ^ := alltoall_datatype.cpp
+# ^ := alltoall_baseline.cpp
 # automatic
-# ? := alltoall_datatype.cpp
+# ? := alltoall_baseline.cpp
 # automatic
 # | := 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=2/14=14%
-#  recipe to execute (from 'Makefile', line 10):
+#  recipe to execute (from 'Makefile', line 9):
 	$(CC) $(CFLAGS) -o a.out $(TARGET).cpp 
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-13 06:51:36.966066675
+#  File has been updated.
+#  Successfully updated.
 
 clean:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
-#  recipe to execute (from 'Makefile', line 13):
+#  recipe to execute (from 'Makefile', line 12):
 	$(RM) $(TARGET)
 
 # Not a target:
-alltoall_datatype.cpp:
+alltoall_baseline.cpp:
 #  Implicit rule search has been done.
-#  Last modified 2022-07-13 03:43:44.363322674
+#  Last modified 2022-07-13 06:47:20.111144865
 #  File has been updated.
 #  Successfully updated.
 
@@ -309,9 +286,10 @@ alltoall_datatype.cpp:
 .DEFAULT:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
+ 
 #  File has not been updated.
 
-all: alltoall_datatype
+all: alltoall_baseline
 #  Command line target.
 #  Implicit rule search has been done.
 #  File does not exist.
@@ -329,9 +307,7 @@ all: alltoall_datatype
 # files hash-table stats:
 # Load=7/1024=1%, Rehash=0, Collisions=0/22=0%
 # VPATH Search Paths
- 
 
- 
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
@@ -342,6 +318,6 @@ all: alltoall_datatype
 # strcache performance: lookups = 33 / hit rate = 33%
 # hash-table stats:
 # Load=22/8192=0%, Rehash=0, Collisions=0/33=0%
-# Finished Make data base on Wed Jul 13 03:43:54 2022
+# Finished Make data base on Wed Jul 13 06:51:39 2022
 
  
