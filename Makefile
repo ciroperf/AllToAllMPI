@@ -2,7 +2,7 @@ CC = mpic++
 
   CFLAGS  = -g -Wall
 
-  TARGET = alltoallNBC
+  TARGET = alltoall_datatype
 
   all: $(TARGET)
 
