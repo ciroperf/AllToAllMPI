@@ -36,8 +36,7 @@ To perform this operation, every node sends *p - 1* pieces of data, each of size
 
 ## AllToALL Zero copy
 
-The previous implementations receive elements into an in termediate buffer which is then unpacked into the *recvbuf* before the next communication round. It would be desirable to eliminate this overhead. For instance, a received element which will have to be sent further on in a later communication round could remain in and be sent directly out of the intermediate buffer with no need for unpacking into the *recvbuf*. In general, elements for which the number of set bits k 0 > k in j is even will be received into recvbuf, and elements with an odd number of set bits k 0 > k will be received into the intermediate buffer.
-
+The previous implementations receive elements into an in termediate buffer which is then unpacked into the *recvbuf* before the next communication round. It would be desirable to eliminate this overhead. For instance, a received element which will have to be sent further on in a later communication round could remain in and be sent directly out of the intermediate buffer with no need for unpacking into the *recvbuf*. In general, elements for which the number of set bits *k 0 > k* in *j* is even will be received into *recvbuf*, and elements with an odd number of set bits *k 0 > k* will be received into the intermediate buffer.
 
 ### Compile
 
