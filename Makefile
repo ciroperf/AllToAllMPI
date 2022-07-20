@@ -3,7 +3,6 @@ CC = mpic++
   CFLAGS  = -g -Wall
 
   TARGET = alltoall_baseline
-  default_target: alltoall_baseline
 
   all: $(TARGET)
 

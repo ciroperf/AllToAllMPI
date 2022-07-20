@@ -108,10 +108,10 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 		*/
-
+        int number_of_data=n/nprocs;
         MPI_Barrier(MPI_COMM_WORLD);
         t1_b = MPI_Wtime();
-        alltoall_datatype((char*)send_buffer, 1, MPI_INT, (char*)recv_buffer, 1, MPI_INT, MPI_COMM_WORLD);
+        alltoall_datatype((char*)send_buffer, number_of_data, MPI_INT, (char*)recv_buffer, number_of_data, MPI_INT, MPI_COMM_WORLD);
         MPI_Barrier(MPI_COMM_WORLD);
         t2_b = MPI_Wtime();
 
