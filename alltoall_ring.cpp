@@ -162,8 +162,8 @@ int main(int argc, char** argv) {
     }
 
     n_bytes = n * sizeof(int);
-
     int *arr = (int*)malloc(n*sizeof(int));
+    int number_of_data=n/num_proc;
 
     for(int i = 0; i < n; i++) {
         arr[i] = rank * 100 * n + i * 100;
